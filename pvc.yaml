@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ultra-disk
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: ultra-disk-sc
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: azure-managed-disk
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-csi-premium
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: premium2-disk
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: premium2-disk-sc
+  resources:
+    requests:
+      storage: 100Gi
