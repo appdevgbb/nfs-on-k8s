@@ -1,0 +1,59 @@
+# ultra disk
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-nfs-client-ultra-disk
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.244.0.5
+    path: "/ultra-disk"
+  mountOptions:
+    - nfsvers=4.1
+    - nconnect=4
+    - nolock
+    - noatime
+    - norelatime
+    - rsize=32768,wsize=32768
+    - async
+    - fsc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-nfs-client-ultra-disk
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pv-nfs-client-ultra-disk
+---
+# client
+apiVersion: v1  
+kind: Pod  
+metadata:  
+  name: nfs-client-pod  
+spec:  
+  volumes:
+    - name: ultra-disk
+      persistentVolumeClaim:
+        claimName: pvc-nfs-client-ultra-disk
+  containers:  
+    - name: app  
+      image: ubuntu
+      command: [ "/bin/bash", "-c", "--" ]
+      args: [ "apt update;apt install -y fio;while true; do sleep 30; done;" ]
+      ports:  
+        - name: web  
+          containerPort: 80
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: ultra-disk
+          mountPath: /mnt/ultra-disk

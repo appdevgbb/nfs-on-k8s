@@ -1,0 +1,46 @@
+apiVersion: apps/v1  
+kind: StatefulSet
+metadata:
+  name: nfs-server  
+spec:
+  serviceName: nfs-server-service
+  replicas: 1  
+  selector:  
+    matchLabels:  
+      role: nfs-server  
+  template:  
+    metadata:  
+      labels:  
+        role: nfs-server  
+    spec:  
+      containers:  
+      - name: nfs-server  
+        image: gcr.io/google_containers/volume-nfs:0.8
+        ports:
+          - name: nfs
+            containerPort: 2049
+          - name: mountd
+            containerPort: 20048
+          - name: rpcbind
+            containerPort: 111
+        securityContext:
+          privileged: true
+        command: ["/bin/entrypoint.sh"]
+        args: [ "ultra-disk"]
+        volumeMounts: 
+          - name: ultra-disk
+            mountPath: /exports/ultra-disk
+          - name: nfs-config
+            mountPath: /bin/entrypoint.sh
+            readOnly: true
+            subPath: entrypoint.sh
+      # various types of storage
+      volumes:
+        - name: ultra-disk
+          persistentVolumeClaim:
+            claimName: ultra-disk
+        # configmap
+        - name: nfs-config
+          configMap:
+            defaultMode: 0700
+            name: cm-nfs-config
