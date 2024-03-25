@@ -1,0 +1,282 @@
+# azure blob
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-client-nfs-blob
+spec:
+  accessModes:
+  - ReadWriteMany
+  capacity:
+    storage: 1Pi
+  claimRef:
+    apiVersion: v1
+    kind: PersistentVolumeClaim
+    name: pvc-client-nfs-blob
+    namespace: default
+  csi:
+    driver: blob.csi.azure.com
+    volumeAttributes:
+      containerName: output
+      protocol: nfs
+      resourceGroup: rg-dc-gbb
+      storageAccount: stormbreakerstorgbb
+    volumeHandle: stormbreakerstorgbb-output
+  mountOptions:
+  - nconnect=16
+  - nolock
+  - noatime
+  - rsize=32768,wsize=32768
+  - async
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azureblob-nfs-premium
+  volumeMode: Filesystem
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-client-nfs-blob
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: pv-client-nfs-blob
+---
+# nvme
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-client-nvme
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.174.227.14
+    path: "/nvme"
+  mountOptions:
+    - nfsvers=4.1
+    - nconnect=4
+    - nolock
+    - noatime
+    - norelatime
+    - rsize=32768,wsize=32768
+    - async
+    - fsc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-client-nvme
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pv-client-nvme
+---
+# ultra disk
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-client-ultra-disk
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.174.227.14
+    path: "/ultra-disk"
+  mountOptions:
+    - nfsvers=4.1
+    - nconnect=4
+    - nolock
+    - noatime
+    - norelatime
+    - rsize=32768,wsize=32768
+    - async
+    - fsc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-client-ultra-disk
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pv-client-ultra-disk
+---
+# azure-managed-disk
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-client-azure-managed-disk
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.174.227.14
+    path: "/azure-managed-disk"
+  mountOptions:
+    - nfsvers=4.1
+    - nconnect=4
+    - nolock
+    - noatime
+    - rsize=32768,wsize=32768
+    - async
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-client-azure-managed-disk
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pv-client-azure-managed-disk
+---
+# premium disk
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-client-premium2-disk
+spec:
+  capacity:
+    storage: 100Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.174.227.14
+    path: "/emptydir"
+  mountOptions:
+    - nfsvers=4.1
+    - nconnect=4
+    - nolock
+    - noatime
+    - rsize=32768,wsize=32768
+    - async
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-client-premium2-disk
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 100Gi
+  volumeName: pv-client-premium2-disk
+---
+# emptydir
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-client-emptydir
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 10.174.227.14
+    path: "/emptydir"
+  mountOptions:
+    - nfsvers=4.1
+    - nconnect=4
+    - nolock
+    - noatime
+    - rsize=32768,wsize=32768
+    - async
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-client-emptydir
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: pv-client-emptydir
+---
+# client
+apiVersion: v1  
+kind: Pod  
+metadata:  
+  name: nfs-client-pod  
+spec:  
+  volumes:
+    - name: fio-config
+      configMap:
+        name: cm-fio-config
+    - name: azure-managed-disk  
+      persistentVolumeClaim:
+        claimName: pvc-client-azure-managed-disk
+    - name: ultra-disk
+      persistentVolumeClaim:
+        claimName: pvc-client-ultra-disk
+    - name: premium2-disk
+      persistentVolumeClaim:
+        claimName: pvc-client-premium2-disk
+    - name: emptydir
+      persistentVolumeClaim:
+        claimName: pvc-client-emptydir
+    - name: nfs-blob
+      persistentVolumeClaim:
+        claimName: pvc-client-nfs-blob
+    - name: nvme
+      persistentVolumeClaim:
+        claimName: pvc-client-nvme
+  containers:  
+    - name: app  
+      image: nginx
+      command:
+      - /bin/sh
+      - -c 
+      - | 
+        apt update; apt install -y fio nfs-client; sleep 9999;
+      resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi  
+      ports:  
+        - name: web  
+          containerPort: 80
+      securityContext:
+        privileged: true
+      volumeMounts:
+        - name: nfs-blob
+          mountPath: /mnt/blob
+        - name: emptydir
+          mountPath: /mnt/emptydir
+        - name: azure-managed-disk
+          mountPath: /mnt/azure-managed-disk
+        - name: ultra-disk
+          mountPath: /mnt/ultra-disk
+        - name: premium2-disk
+          mountPath: /mnt/premium2-disk
+        - name: nvme
+          mountPath: /mnt/nvme
+        - name: fio-config
+          mountPath: /configs

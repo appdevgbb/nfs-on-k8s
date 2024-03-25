@@ -1,0 +1,69 @@
+---
+kind: ConfigMap 
+apiVersion: v1 
+metadata:
+  name: cm-fio-config
+data:
+  fio.job: |
+    [global]
+    ioengine=libaio
+    direct=1    
+    size=30G
+    iodepth=256    
+    bs=4K
+    [writer1]
+    rw=randwrite
+  direct_device.fio: |
+    [global]
+    bs=1M
+    iodepth=256
+    direct=1
+    ioengine=libaio
+    group_reporting
+    time_based
+    runtime=120
+    numjobs=1
+                            
+    [raw-seq-write]
+    filename=/dev/nvme0n1
+    rw=write
+
+    [raw-seq-read]
+    filename=/dev/nvme0n1
+    rw=read
+
+    [raw-rand-write]
+    filename=/dev/nvme0n1
+    rw=randwrite
+
+    [raw-rand-read]
+    filename=/dev/nvme0n1
+    rw=randread
+  mounted_device.fio: |
+    [global]
+    bs=4k
+    iodepth=256
+    direct=1
+    ioengine=libaio
+    group_reporting
+    time_based
+    runtime=120
+    numjobs=1
+                                
+    [raw-seq-write]
+    filename=/pv-disks/nvme/test.dat
+    size=10GB
+    rw=write
+
+    [raw-seq-read]
+    filename=/pv-disks/nvme/test.dat
+    rw=read
+
+    [raw-rand-write]
+    filename=/pv-disks/nvme/test.dat
+    size=10GB
+    rw=randwrite
+
+    [raw-rand-read]
+    filename=/pv-disks/nvme/test.dat
+    rw=randread
