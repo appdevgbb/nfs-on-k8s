@@ -12,17 +12,18 @@ spec:
     metadata:  
       labels:  
         role: nfs-server  
-    spec:  
-      containers:  
+    spec:
+      hostNetwork: true
+      containers:
       - name: nfs-server  
         image: gcr.io/google_containers/volume-nfs:0.8
-        resources:
-          requests:
-            cpu: 2
-            memory: 8Gi
-          limits:
-            cpu: 2
-            memory: 8Gi
+        # resources:
+        #   requests:
+        #     cpu: 2
+        #     memory: 8Gi
+        #   limits:
+        #     cpu: 2
+        #     memory: 8Gi
         ports:
           - name: nfs
             containerPort: 2049

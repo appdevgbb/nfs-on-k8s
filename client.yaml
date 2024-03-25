@@ -22,11 +22,13 @@ spec:
       storageAccount: stormbreakerstorgbb
     volumeHandle: stormbreakerstorgbb-output
   mountOptions:
-  - nconnect=16
-  - nolock
-  - noatime
-  - rsize=32768,wsize=32768
-  - async
+    - nconnect=16
+    - nolock
+    - noatime
+    - norelatime
+    - nodiratime
+    - async
+    - fsc
   persistentVolumeReclaimPolicy: Retain
   storageClassName: azureblob-nfs-premium
   volumeMode: Filesystem
@@ -54,15 +56,16 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 10.174.227.14
+    server: 10.255.1.10
     path: "/nvme"
   mountOptions:
     - nfsvers=4.1
-    - nconnect=4
+    - nconnect=16
     - nolock
     - noatime
     - norelatime
-    - rsize=32768,wsize=32768
+    - nodiratime
+    - rsize=1048576,wsize=1048576
     - async
     - fsc
 ---
@@ -86,19 +89,20 @@ metadata:
   name: pv-client-ultra-disk
 spec:
   capacity:
-    storage: 100Gi
+    storage: 1000Gi
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 10.174.227.14
+    server: 10.255.1.10
     path: "/ultra-disk"
   mountOptions:
     - nfsvers=4.1
-    - nconnect=4
+    - nconnect=16
     - nolock
     - noatime
     - norelatime
-    - rsize=32768,wsize=32768
+    - nodiratime
+    - rsize=1048576,wsize=1048576
     - async
     - fsc
 ---
@@ -126,15 +130,18 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 10.174.227.14
+    server: 10.255.1.10
     path: "/azure-managed-disk"
   mountOptions:
     - nfsvers=4.1
-    - nconnect=4
+    - nconnect=16
     - nolock
     - noatime
-    - rsize=32768,wsize=32768
+    - norelatime
+    - nodiratime
+    - rsize=1048576,wsize=1048576
     - async
+    - fsc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -160,15 +167,18 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 10.174.227.14
+    server: 10.255.1.10
     path: "/emptydir"
   mountOptions:
     - nfsvers=4.1
-    - nconnect=4
+    - nconnect=16
     - nolock
     - noatime
-    - rsize=32768,wsize=32768
+    - norelatime
+    - nodiratime
+    - rsize=1048576,wsize=1048576
     - async
+    - fsc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -194,15 +204,18 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 10.174.227.14
+    server: 10.255.1.10
     path: "/emptydir"
   mountOptions:
     - nfsvers=4.1
-    - nconnect=4
+    - nconnect=16
     - nolock
     - noatime
-    - rsize=32768,wsize=32768
+    - norelatime
+    - nodiratime
+    - rsize=1048576,wsize=1048576
     - async
+    - fsc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -245,7 +258,8 @@ spec:
     - name: nvme
       persistentVolumeClaim:
         claimName: pvc-client-nvme
-  containers:  
+  hostNetwork: true
+  containers:
     - name: app  
       image: nginx
       command:
@@ -253,13 +267,13 @@ spec:
       - -c 
       - | 
         apt update; apt install -y fio nfs-client; sleep 9999;
-      resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            cpu: 250m
-            memory: 256Mi  
+      # resources:
+      #     requests:
+      #       cpu: 100m
+      #       memory: 128Mi
+      #     limits:
+      #       cpu: 250m
+      #       memory: 256Mi  
       ports:  
         - name: web  
           containerPort: 80

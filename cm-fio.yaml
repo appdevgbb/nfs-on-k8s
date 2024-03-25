@@ -16,6 +16,7 @@ data:
   direct_device.fio: |
     [global]
     bs=1M
+    size=4G
     iodepth=256
     direct=1
     ioengine=libaio
@@ -23,21 +24,21 @@ data:
     time_based
     runtime=120
     numjobs=1
-                            
+                                
     [raw-seq-write]
-    filename=/dev/nvme0n1
+    filename=/mnt/azure/test
     rw=write
 
     [raw-seq-read]
-    filename=/dev/nvme0n1
+    filename=/mnt/azure/test
     rw=read
 
     [raw-rand-write]
-    filename=/dev/nvme0n1
+    filename=/mnt/azure/test
     rw=randwrite
 
     [raw-rand-read]
-    filename=/dev/nvme0n1
+    filename=/mnt/azure/test
     rw=randread
   mounted_device.fio: |
     [global]

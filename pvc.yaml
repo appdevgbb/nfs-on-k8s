@@ -8,7 +8,7 @@ spec:
   storageClassName: ultra-disk-sc
   resources:
     requests:
-      storage: 100Gi
+      storage: 1000Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -20,7 +20,7 @@ spec:
   storageClassName: managed-csi-premium
   resources:
     requests:
-      storage: 100Gi
+      storage: 1000Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -32,4 +32,4 @@ spec:
   storageClassName: premium2-disk-sc
   resources:
     requests:
-      storage: 100Gi
+      storage: 1000Gi

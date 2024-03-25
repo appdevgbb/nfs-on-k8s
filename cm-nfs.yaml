@@ -74,6 +74,8 @@ data:
           exit 0
       }
 
+      # increase the number of threads for the server
+      sed -E -i 's/#(RPCNFSDCOUNT=)(16)/\1256/g' /etc/sysconfig/nfs
       yum install fio
       
       trap stop TERM
